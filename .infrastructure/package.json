@@ -1,0 +1,37 @@
+{
+  "name": "cognito",
+  "version": "0.1.0",
+  "bin": {
+    "cognito": "bin/cognito.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "lint": "eslint --fix bin lib",
+    "secrets": "tsx github.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "*",
+    "@tsconfig/node18": "*",
+    "@types/aws-lambda": "*",
+    "@types/jest": "*",
+    "@types/node": "*",
+    "@types/source-map-support": "*",
+    "aws-cdk": "*",
+    "eslint": "*",
+    "jest": "*",
+    "ts-jest": "*",
+    "ts-node": "*",
+    "tsx": "*",
+    "typescript": "*",
+    "typescript-eslint": "*"
+  },
+  "dependencies": {
+    "@scloud/cdk-github": "*",
+    "@scloud/cdk-patterns": "*",
+    "aws-cdk-lib": "*",
+    "constructs": "*"
+  }
+}
