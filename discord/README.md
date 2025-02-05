@@ -1,3 +1,0 @@
-# Discord
-
-Discord messaging
