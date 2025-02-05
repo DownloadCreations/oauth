@@ -10,8 +10,9 @@ import { HostedZone, IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 // import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-// import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
-// import * as path from 'path';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import * as path from 'path';
+import { readFileSync, writeFileSync } from 'fs';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 function envVar(name: string, fallback?: string): string {
@@ -52,7 +53,7 @@ export default class CognitoStack extends cdk.Stack {
 
     // Cognito authentication
     const cognito = this.cognito();
-    const signInUrl = cognito.signInUrl(cognito.callbackUrl);
+    const signInUrl = cognito.signInUrl();
     githubActions(this).addGhaVariable('signInUrl', 'cognito', signInUrl);
 
     // Example bucket
@@ -99,12 +100,29 @@ export default class CognitoStack extends cdk.Stack {
     // * CLOUDFRONT_BUCKET - for uploading the frontend
     // * CLOUDFRONT_DISTRIBUTIONID - for invalidating the Cloudfront cache
     const api = this.api(cognito, builds, users);
-    new WebApi(this, 'cloudfront', {
+    const webApi = new WebApi(this, 'cloudfront', {
       zone,
       lambda: api,
       domainName: envVar('DOMAIN_NAME'),
     });
     // https://prototype.downloadcreations.com/auth
+
+    // Rewrite swagger-initializer.js
+    const swaggerUiDiredtory = 'swagger-ui-5.18.3';
+    const distDirectory = path.join(__dirname, `../${swaggerUiDiredtory}/dist`);
+    const swaggerInitialiser = path.join(distDirectory, 'swagger-initializer.js');
+    const initialiserContent = readFileSync(swaggerInitialiser).toString();
+    writeFileSync(swaggerInitialiser, initialiserContent.replace('https://petstore.swagger.io/v2/swagger.json', `https://${envVar('DOMAIN_NAME')}/swagger-ui/licensing-api.yml`));
+
+    // Copy the spec into the bucket deployment
+    const specPath = path.join(__dirname, `../licensing-api.yml`);
+    const spec = readFileSync(specPath);
+    writeFileSync(distDirectory, spec);
+
+    new BucketDeployment(this, 'swaggerUi', {
+      destinationBucket: webApi.bucket,
+      sources: [Source.asset(distDirectory)],
+    });
 
     // Set up OIDC access from Github Actions - this enables builds to deploy updates to the infrastructure
     const owner = envVar('OWNER', process.env.USERNAME); // Either OWNER, or USERNAME environment variables can be used

@@ -1,0 +1,151 @@
+openapi: 3.0.3
+info:
+  title: Swagger Petstore - OpenAPI 3.0
+  description: |-
+    This is a draft spec for the Licensing API [https://github.com/Scottish-Natural-Heritage/licensing-api](https://github.com/Scottish-Natural-Heritage/licensing-api).
+  contact:
+    email: admin@nature.scot
+  license:
+    name: MIT
+    url: https://github.com/Scottish-Natural-Heritage/licensing-api/blob/develop/LICENSE.txt
+  version: 1.0.0
+externalDocs:
+  description: Find out more about NatureScot
+  url: https://nature.scot
+servers:
+  - url: https://licensing.nature.scot/licensing-api/v1
+tags:
+  - name: licenses
+    description: Retrieve all licenses associated with a user
+    externalDocs:
+      description: Find out more
+      url: https://github.com/Scottish-Natural-Heritage/licensing-api
+paths:
+  /licences:
+    get:
+      tags:
+        - licenses
+      summary: Retrieve licenses for a user
+      description: 'Returns licenses from across all license types'
+      operationId: getLicenses
+      parameters:
+        - name: email
+          in: query
+          description: The user's email
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Zero or more licenses exist for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '400':
+          description: Email not provided
+components:
+  schemas:
+    User:
+      required:
+        - userId
+        - givenName
+        - familyName
+        - phone
+        - address
+        - licenses
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1011
+        givenName:
+          type: string
+          example: "Jim"
+        familyName:
+          type: string
+          example: "McGregor"
+        email:
+          type: string
+          example: "jim.mcgregor@example.com"
+        phone:
+          type: string
+          example: '07977 123456'
+        address:
+          $ref: "#/components/schemas/Address"
+        licenses:
+          type: array
+          items:
+            $ref: "#/components/schemas/License"
+    License:
+      required:
+        - type
+        - id
+        - expires
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          example: "NS-TRA-123456"
+        type:
+          type: string
+          description: License type
+          example: muirburn
+          enum:
+            - gulls
+            - traps
+            - grouse
+            - deer
+            - muirburn
+        expires:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: License status
+          example: approved
+          enum:
+            - applied
+            - approved
+            - withdrawn
+    Address:
+      required:
+        - AddressLine1
+        - TownOrCity
+        - Postcode
+      type: object
+      properties:
+        AddressLine1:
+          type: string
+          example: Polkemmet Country Park
+        AddressLine2:
+          type: string
+          example: Whitburn
+        TownOrCity:
+          type: string
+          example: Bathgate
+        County:
+          type: string
+          example: West Lothian
+        Postcode:
+          type: string
+          example: EH47 0AD
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+  securitySchemes:
+    licensingAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
