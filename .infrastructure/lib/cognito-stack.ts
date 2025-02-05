@@ -112,12 +112,12 @@ export default class CognitoStack extends cdk.Stack {
     const distDirectory = path.join(__dirname, `../${swaggerUiDiredtory}/dist`);
     const swaggerInitialiser = path.join(distDirectory, 'swagger-initializer.js');
     const initialiserContent = readFileSync(swaggerInitialiser).toString();
-    writeFileSync(swaggerInitialiser, initialiserContent.replace('https://petstore.swagger.io/v2/swagger.json', `https://${envVar('DOMAIN_NAME')}/swagger-ui/licensing-api.yml`));
+    writeFileSync(swaggerInitialiser, initialiserContent.replace('https://petstore.swagger.io/v2/swagger.json', `https://${envVar('DOMAIN_NAME')}/licensing-api.yml`));
 
     // Copy the spec into the bucket deployment
     const specPath = path.join(__dirname, `../licensing-api.yml`);
     const spec = readFileSync(specPath);
-    writeFileSync(distDirectory, spec);
+    writeFileSync(path.join(distDirectory, 'licensing-api.yml'), spec);
 
     new BucketDeployment(this, 'swaggerUi', {
       destinationBucket: webApi.bucket,
