@@ -164,7 +164,7 @@ export default class CognitoStack extends cdk.Stack {
     const callbackUrl = `https://${envVar('DOMAIN_NAME')}/auth`;
 
     // Default to using a "domain prefix"
-    return Cognito.withEmailLogin(this, 'cognito', callbackUrl, undefined, undefined, undefined, authDomainPrefix);
+    return Cognito.withEmailLogin(this, 'cognito', callbackUrl, 'http://localhost:3000', undefined, undefined, authDomainPrefix);
 
     // To create Cognito with Social logins, you can use:
     // Cognito.withSocialLogins(this, 'cognito', callbackUrl, ... );
