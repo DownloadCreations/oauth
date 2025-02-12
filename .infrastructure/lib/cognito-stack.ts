@@ -185,6 +185,9 @@ export default class CognitoStack extends cdk.Stack {
       environment: {
         SIGNIN_URL: cognito.signInUrl(),
         TABLE: users.tableName,
+        SIGN_IN_URL_COGNITO: cognito.signInUrl(),
+        SIGN_IN_URL_LOCALHOST_COGNITO: cognito.signInUrl(cognito.callbackUrls[1]),
+        USER_POOL_ID_COGNITO: cognito.userPool.userPoolId,
       },
       functionProps: {
         memorySize: 3008,
