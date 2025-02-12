@@ -52,9 +52,10 @@ export default class CognitoStack extends cdk.Stack {
     // const slackQueue = this.slack();
 
     // Cognito authentication
-    const cognito = this.cognito();
+    const localhostUrl = 'http://localhost:3000/contacts/auth';
+    const cognito = this.cognito(localhostUrl);
     githubActions(this).addGhaVariable('signInUrl', 'cognito', cognito.signInUrl());
-    githubActions(this).addGhaVariable('signInUrlLocalhost', 'cognito', cognito.signInUrl('http://localhost:3000'));
+    githubActions(this).addGhaVariable('signInUrlLocalhost', 'cognito', cognito.signInUrl(localhostUrl));
     githubActions(this).addGhaVariable('userPoolId', 'cognito', cognito.userPool.userPoolId);
 
     // Example bucket
