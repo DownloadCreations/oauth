@@ -159,13 +159,13 @@ export default class CognitoStack extends cdk.Stack {
     return slack.queue;
   }
 
-  cognito(): Cognito {
+  cognito(localhostUrl: string): Cognito {
     // Cognito for authentication
     const authDomainPrefix = `oauth-downloadcreations`.toLowerCase(); // COGNITO_DOMAIN_PREFIX needs to be unique, but also constant, otherwise we get an error on deployment. This is auto-generated and can be replaced with a value of your choice.
     const callbackUrl = `https://${envVar('DOMAIN_NAME')}/auth`;
 
     // Default to using a "domain prefix"
-    return Cognito.withEmailLogin(this, 'cognito', callbackUrl, 'http://localhost:3000', undefined, undefined, authDomainPrefix);
+    return Cognito.withEmailLogin(this, 'cognito', callbackUrl, localhostUrl, undefined, undefined, authDomainPrefix);
 
     // To create Cognito with Social logins, you can use:
     // Cognito.withSocialLogins(this, 'cognito', callbackUrl, ... );
