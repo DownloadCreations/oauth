@@ -52,11 +52,19 @@ export default class CognitoStack extends cdk.Stack {
     // const slackQueue = this.slack();
 
     // Cognito authentication
-    const localhostUrl = 'http://localhost:3000/contacts/auth';
+    const localhostUrls = [
+      'http://localhost:3000/contacts/auth',
+      'http://localhost:3000/contacts/staff-auth',
+      'http://localhost:3000/auth/auth',
+      'http://localhost:3000/auth/staff-auth',
+    ];
     const logoutUrl = 'http://localhost:3000/contacts/logout';
-    const cognito = this.cognito(localhostUrl, logoutUrl);
+    const cognito = this.cognito(logoutUrl, ...localhostUrls);
     githubActions(this).addGhaVariable('signInUrl', 'cognito', cognito.signInUrl());
-    githubActions(this).addGhaVariable('signInUrlLocalhost', 'cognito', cognito.signInUrl(localhostUrl));
+    githubActions(this).addGhaVariable('signInUrlLocalhost1', 'cognito', cognito.signInUrl(localhostUrls[0]));
+    githubActions(this).addGhaVariable('signInUrlLocalhost2', 'cognito', cognito.signInUrl(localhostUrls[1]));
+    githubActions(this).addGhaVariable('signInUrlLocalhost3', 'cognito', cognito.signInUrl(localhostUrls[2]));
+    githubActions(this).addGhaVariable('signInUrlLocalhost4', 'cognito', cognito.signInUrl(localhostUrls[3]));
     githubActions(this).addGhaVariable('userPoolId', 'cognito', cognito.userPool.userPoolId);
 
     // Example bucket
@@ -161,13 +169,13 @@ export default class CognitoStack extends cdk.Stack {
     return slack.queue;
   }
 
-  cognito(callbackLocalhostUrl: string, logoutUrl): Cognito {
+  cognito(logoutUrl: string, ...callbackLocalhostUrl: string[]): Cognito {
     // Cognito for authentication
     const authDomainPrefix = `oauth-downloadcreations`.toLowerCase(); // COGNITO_DOMAIN_PREFIX needs to be unique, but also constant, otherwise we get an error on deployment. This is auto-generated and can be replaced with a value of your choice.
     const callbackUrl = `https://${envVar('DOMAIN_NAME')}/auth`;
 
     // Default to using a "domain prefix"
-    return Cognito.withEmailLogin(this, 'cognito', callbackUrl, undefined, undefined, authDomainPrefix, logoutUrl, callbackLocalhostUrl);
+    return Cognito.withEmailLogin(this, 'cognito', callbackUrl, undefined, undefined, authDomainPrefix, logoutUrl, ...callbackLocalhostUrl);
 
     // To create Cognito with Social logins, you can use:
     // Cognito.withSocialLogins(this, 'cognito', callbackUrl, ... );
